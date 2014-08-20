@@ -1,0 +1,45 @@
+{
+  "name": "node-linq",
+  "description": "LINQ implementation",
+  "version": "0.0.3",
+  "homepage": "http://github.com/wearefractal/node-linq",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/wearefractal/node-linq.git"
+  },
+  "author": {
+    "name": "Fractal",
+    "email": "contact@wearefractal.com",
+    "url": "http://wearefractal.com/"
+  },
+  "main": "./index.js",
+  "dependencies": {
+    "coffee-script": "*",
+    "async": "*"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*"
+  },
+  "engines": {
+    "node": ">= 0.4.0"
+  },
+  "scripts": {
+    "test": "mocha --compilers coffee:coffee-script"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://github.com/wearefractal/node-linq/raw/master/LICENSE"
+    }
+  ],
+  "readme": "![status](https://secure.travis-ci.org/wearefractal/node-linq.png?branch=master)\n\n## Information\n\n<table>\n<tr> \n<td>Package</td><td>node-linq</td>\n</tr>\n<tr>\n<td>Description</td>\n<td>LINQ implementation for node</td>\n</tr>\n<tr>\n<td>Node Version</td>\n<td>>= 0.4</td>\n</tr>\n</table>\n\nGot an idea for something cool? Open an issue!\n\nThis library has not been tested or optimized for performance.\n\n## Usage\n\nThese functions can be chained for synchronous and asynchronous queries\n\n```coffee-script\n.Where(fn)\n.Distinct()\n.Except(arr)\n.OfType(type)\n.Map(fn)\n.Cast(type)\n.Select(fn)\n.SelectMany(fn) \n.Reverse()\n.OrderBy(fn)\n.OrderByDescending(fn)\n.GroupBy(fn)\n\n.Concat(arr)\n.Intersect(arr, [fn])\n```\n\nThese functions return a value (for use at the end of a chain)\n\n```coffee-script\n.Contains(val)\n.ContainsAll(arr)\n.Any(fn)\n.All(fn)\n.Max()\n.Min()\n.Sum([fn])\n.Average([fn])\n\n.ElementAt(idx)\n.ElementAtOrDefault(idx, default)\n.First([fn])\n.FirstOrDefault(default, [fn])\n.Last([fn])\n.LastOrDefault(default, [fn])\n.Single([fn])\n.SingleOrDefault(d, [fn])\n.DefaultIfEmpty(d)\n\n.Count()\n```\n## Examples\n\nThese suck. If you have more practical examples pull requests are appreciated.\n\n### Sorting .txt files alphabetically by name\nSynchronous (LINQ)\n\n####Javascript:\n```javascript\nvar LINQ = require('node-linq').LINQ;\nvar path = require('path');\nvar files = ['test.txt', 'choni.txt', 'legacy.zip', 'secrets.txt', 'etc.rar'];\nvar arr = new LINQ(files)\n  .Where(function(file) { return path.extname(file) === 'txt'; })\n  .OrderBy(function(file) { return file;})\n  .ToArray();\n\n//arr is now [ 'choni.txt',  'secrets.txt', 'text.txt' ]\n```\n\n####CoffeeScript:\n```coffee-script\n{LINQ} = require 'node-linq'\n{extname} = require 'path'\n\nfiles = ['test.txt', 'choni.txt', 'legacy.zip', 'secrets.txt', 'etc.rar']\n\narr = new LINQ(files)\n.Where((file) -> extname(file) is 'txt')\n.OrderBy((file) -> file)\n.ToArray()\n\n# arr ==  [ 'choni.txt',  'secrets.txt', 'text.txt' ]\n```\n\nAsynchronous (ALINQ)\n####CoffeeScript:\n```coffee-script\n{ALINQ} = require 'node-linq'\nfs = require 'fs'\n{extname} = require 'path'\n\nfiles = ['test.txt', 'choni.txt', 'legacy.zip', 'secrets.txt', 'etc.rar']\n\nq = new ALINQ files\n\nq.Where (file, cb) -> \n  cb extname(file) is 'txt'\n\nq.OrderBy (file, cb) -> \n  fs.lstat file, (err, stat) ->\n    cb stat.mtime\n\nq.Execute (arr) ->\n  # arr == [ choni.txt',  'text.txt', 'secrets.txt']\n```\n\n### Sorting users by registration date and then only returning the name\nSynchronous (LINQ)\n\n####Javascript:\n```javascript\nvar LINQ = require(\"node-linq\").LINQ;\n\nvar users = [\n\t{name: 'Bob', joined: new Date('12/27/1993')},\n\t{name: 'Tom', joined: new Date('12/25/1993')},\n\t{name: 'Bill', joined: new Date('11/10/1992')},\n];\n\nvar arr = new LINQ(users)\n\t.OrderBy(function(user) {return user.joined;})\n\t.Select(function(user) {return user.name;})\n\t.ToArray();\n  \n//arr is now [ 'Bill','Tom','Bob' ]\n```\n####CoffeeScript:\n```coffee-script\n{LINQ} = require 'node-linq'\n\nusers = [\n  {name: 'Bob', joined: new Date('12/27/1993')},\n  {name: 'Tom', joined: new Date('12/25/1993')},\n  {name: 'Bill', joined: new Date('11/10/1992')},\n]\narr = new LINQ(users)\n.OrderBy((user) -> user.joined)\n.Select((user) -> user.name)\n.ToArray()\n\n# arr == ['Bill', 'Tom', 'Bob']\n```\n\nAsynchronous (ALINQ)\n\n####CoffeeScript:\n```coffee-script\n{ALINQ} = require 'node-linq'\n\nusers = [\n  {name: 'Bob', joined: new Date('12/27/1993')},\n  {name: 'Tom', joined: new Date('12/25/1993')},\n  {name: 'Bill', joined: new Date('11/10/1992')},\n]\nq = new ALINQ users\nq.OrderBy (user, cb) ->  cb user.joined\nq.Select (user, cb) -> cb user.name\n\nq.Execute (arr) ->\n  # arr == ['Bill', 'Tom', 'Bob']\n```\n\n## LICENSE\n\n(MIT License)\n\nCopyright (c) 2012 Fractal <contact@wearefractal.com>\n\nPermission is hereby granted, free of charge, to any person obtaining\na copy of this software and associated documentation files (the\n\"Software\"), to deal in the Software without restriction, including\nwithout limitation the rights to use, copy, modify, merge, publish,\ndistribute, sublicense, and/or sell copies of the Software, and to\npermit persons to whom the Software is furnished to do so, subject to\nthe following conditions:\n\nThe above copyright notice and this permission notice shall be\nincluded in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\nNONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\nLIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\nOF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/wearefractal/node-linq/issues"
+  },
+  "_id": "node-linq@0.0.3",
+  "_shasum": "a117820f65bb5e99ab921cfdcd5f39e41377ab2c",
+  "_from": "node-linq@0.0.3",
+  "_resolved": "https://registry.npmjs.org/node-linq/-/node-linq-0.0.3.tgz"
+}
