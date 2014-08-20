@@ -13,14 +13,24 @@ var JSONBase = require('../lib');
 program
 		.version(pkg.version)
 		.usage('[options] <command ...>')
-		.option('-d, --dir <path>', 'Set database root directory')
+
+		.option('-d, --dir <filepath>', 'Set database root directory')
 		.option('-p, --pretty', 'Pretty print json files')
 		.option('-t, --tabs <n>', 'Pretty print tabs size', parseInt)
 		.option('-v, --verbose', 'Full log messages in standard output')
+
+		.on('--help', function() {
+			console.log('  Commands:');
+			console.log('');
+			console.log('    $ jsonbase init');
+			console.log('    $ jsonbase query');
+			console.log('');
+		})
+
 		.parse(process.argv);
 
 var CONST = {
-	PATH: program.dir || 'db',
+	PATH: program.dir || '_jsonbase',
 	PRETTY: !!program.pretty,
 	TABS: program.tabs || 2,
 	VERBOSE: program.verbose || false
@@ -75,7 +85,8 @@ if (program.args[0] === 'query') {
 		results = query.Where(function(item) {
 			return (new Function('return ' + condition)).apply(item)
 		});
-	} catch(e) {
+	}
+	catch (e) {
 		logger.error('Error querying "%s" model', model, condition);
 		logger.error(e);
 	}

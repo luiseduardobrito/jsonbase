@@ -1,0 +1,26 @@
+{
+  "_v": 1408560133560,
+  "data": [
+    {
+      "active": true,
+      "greet": "Hello, John Doe",
+      "createdAt": 1408560133560,
+      "updatedAt": 1408560133560,
+      "name": "John Doe",
+      "email": "johndoe@gmail.com"
+    }
+  ],
+  "_m": "UserTest",
+  "_s": {
+    "active": true,
+    "greet": {
+      "_f": "return 'Hello, ' + this.name"
+    },
+    "createdAt": {
+      "_f": "return Date.now();"
+    },
+    "updatedAt": {
+      "_f": "return Date.now();"
+    }
+  }
+}
