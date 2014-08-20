@@ -26,7 +26,9 @@ program
 			console.log('    $ jsonbase query <model> <condition>	Query model for specified condition');
 			console.log('    $ jsonbase create <model> [schema]		Create new model based on specified schema, if any');
 			console.log('');
+			console.log('');
 			console.log('  Examples:');
+			console.log('');
 			console.log('    $ jsonbase model User "{active: true, createdAt: function(){return Date.now()}}"');
 			console.log('    $ jsonbase query User "this.email === \'johndoe@gmail.com\' && this.active === true"');
 			console.log('');
