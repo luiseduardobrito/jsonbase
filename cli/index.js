@@ -22,7 +22,7 @@ program
 		.on('--help', function() {
 			console.log('  Commands:');
 			console.log('');
-			console.log('    $ jsonbase init				Initialize database in current path or specified path');
+			console.log('    $ jsonbase list				List available models');
 			console.log('    $ jsonbase create <model> [schema]		Create new model based on specified schema, if any');
 			console.log('    $ jsonbase insert <model> <item>		Insert new item in model data list');
 			console.log('    $ jsonbase query <model> <condition>	Query model for specified condition');
@@ -39,7 +39,7 @@ program
 		.parse(process.argv);
 
 var CONST = {
-	PATH: program.dir || '_jsonbase',
+	PATH: program.dir || '.jsonbase',
 	PRETTY: !!program.pretty,
 	TABS: program.tabs || 2,
 	VERBOSE: program.verbose || false
@@ -89,6 +89,10 @@ if (program.args[0] === 'create') {
 	logger.info('Creating new model%s...', Object.keys(schema).length ? ' with schema' : '');
 	db.model(name, schema);
 	logger.info('"%s" model created successfully', name);
+}
+
+else if (program.args[0] === 'list') {
+	logger.result(db.models);
 }
 
 else if (program.args[0] === 'insert') {
