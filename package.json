@@ -8,7 +8,7 @@
   },
   "preferGlobal": "true",
   "bin": {
-    "filesearch": "cli/index.js"
+    "jsonbase": "cli/index.js"
   },
   "repository": {
     "type": "git",

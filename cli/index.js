@@ -20,7 +20,7 @@ program
 		.parse(process.argv);
 
 var CONST = {
-	PATH: path.join('../', program.dir || 'db'),
+	PATH: program.dir || 'db',
 	PRETTY: !!program.pretty,
 	TABS: program.tabs || 2,
 	VERBOSE: program.verbose || false
