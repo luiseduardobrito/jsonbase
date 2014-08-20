@@ -23,13 +23,15 @@ program
 			console.log('  Commands:');
 			console.log('');
 			console.log('    $ jsonbase init				Initialize database in current path or specified path');
-			console.log('    $ jsonbase query <model> <condition>	Query model for specified condition');
 			console.log('    $ jsonbase create <model> [schema]		Create new model based on specified schema, if any');
+			console.log('    $ jsonbase insert <model> <item>		Insert new item in model data list');
+			console.log('    $ jsonbase query <model> <condition>	Query model for specified condition');
 			console.log('');
 			console.log('');
 			console.log('  Examples:');
 			console.log('');
-			console.log('    $ jsonbase model User "{active: true, createdAt: function(){return Date.now()}}"');
+			console.log('    $ jsonbase create User "{active: true, createdAt: function(){return Date.now()}}"');
+			console.log('    $ jsonbase insert User "{name: \'John Doe\', email: \'johndoe@gmail.com\'}"');
 			console.log('    $ jsonbase query User "this.email === \'johndoe@gmail.com\' && this.active === true"');
 			console.log('');
 		})
@@ -75,18 +77,32 @@ var db = new JSONBase(CONST.PATH, {
 	verbose: CONST.VERBOSE
 });
 
-if (program.args[0] === 'model') {
+if (program.args[0] === 'create') {
 
 	var name = program.args[1];
 	var schema = "" + (program.args[2] || "");
 
-	if(schema && schema.length) {
+	if (schema && schema.length) {
 		schema = (new Function('return ' + schema)).apply();
 	}
 
 	logger.info('Creating new model%s...', Object.keys(schema).length ? ' with schema' : '');
 	db.model(name, schema);
 	logger.info('"%s" model created successfully', name);
+}
+
+else if (program.args[0] === 'insert') {
+
+	var name = program.args[1];
+	var data = "" + (program.args[2] || "");
+
+	if (data && data.length) {
+		data = (new Function('return ' + data)).apply();
+	}
+
+	var i = db.model(name).create(data);
+	logger.info('Item inserted successfully', name);
+	logger.result(i);
 }
 
 else if (program.args[0] === 'query') {
