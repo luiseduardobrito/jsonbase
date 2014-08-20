@@ -12,7 +12,7 @@ var JSONBase = require('../lib');
 
 program
 		.version(pkg.version)
-		.usage('[options] <command ...>')
+		.usage('[options] <command>')
 
 		.option('-d, --dir <filepath>', 'Set database root directory')
 		.option('-p, --pretty', 'Pretty print json files')
@@ -22,8 +22,13 @@ program
 		.on('--help', function() {
 			console.log('  Commands:');
 			console.log('');
-			console.log('    $ jsonbase init');
-			console.log('    $ jsonbase query');
+			console.log('    $ jsonbase init				Initialize database in current path or specified path');
+			console.log('    $ jsonbase query <model> <condition>	Query model for specified condition');
+			console.log('    $ jsonbase create <model> [schema]		Create new model based on specified schema, if any');
+			console.log('');
+			console.log('  Examples:');
+			console.log('    $ jsonbase model User "{active: true, createdAt: function(){return Date.now()}}"');
+			console.log('    $ jsonbase query User "this.email === \'johndoe@gmail.com\' && this.active === true"');
 			console.log('');
 		})
 
@@ -68,8 +73,21 @@ var db = new JSONBase(CONST.PATH, {
 	verbose: CONST.VERBOSE
 });
 
-if (program.args[0] === 'query') {
+if (program.args[0] === 'model') {
 
+	var name = program.args[1];
+	var schema = "" + (program.args[2] || "");
+
+	if(schema && schema.length) {
+		schema = (new Function('return ' + schema)).apply();
+	}
+
+	logger.info('Creating new model%s...', Object.keys(schema).length ? ' with schema' : '');
+	db.model(name, schema);
+	logger.info('"%s" model created successfully', name);
+}
+
+else if (program.args[0] === 'query') {
 	var model = program.args[1];
 	var condition = program.args[2];
 
