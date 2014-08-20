@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * Module dependencies.
+ * CLI dependencies.
  */
-
 var program = require('commander');
 var path = require('path');
 var pkg = require('../package.json');
 
+/**
+ * JSON Base Lib
+ */
 var JSONBase = require('../lib');
 
+/**
+ * CLI Program
+ */
 program
 		.version(pkg.version)
 		.usage('[options] <command>')
@@ -23,6 +28,7 @@ program
 			console.log('  Commands:');
 			console.log('');
 			console.log('    $ jsonbase list				List available models');
+			console.log('    $ jsonbase list <model>		List all model instances');
 			console.log('    $ jsonbase create <model> [schema]		Create new model based on specified schema, if any');
 			console.log('    $ jsonbase insert <model> <item>		Insert new item in model data list');
 			console.log('    $ jsonbase query <model> <condition>	Query model for specified condition');
@@ -30,7 +36,9 @@ program
 			console.log('');
 			console.log('  Examples:');
 			console.log('');
+			console.log('');
 			console.log('    $ jsonbase create User "{active: true, createdAt: function(){return Date.now()}}"');
+			console.log('    $ jsonbase list User ');
 			console.log('    $ jsonbase insert User "{name: \'John Doe\', email: \'johndoe@gmail.com\'}"');
 			console.log('    $ jsonbase query User "this.email === \'johndoe@gmail.com\' && this.active === true"');
 			console.log('');
@@ -38,6 +46,9 @@ program
 
 		.parse(process.argv);
 
+/**
+ * CLI Constants
+ */
 var CONST = {
 	PATH: program.dir || '.jsonbase',
 	PRETTY: !!program.pretty,
@@ -45,30 +56,35 @@ var CONST = {
 	VERBOSE: program.verbose || false
 };
 
-// Wrapper info messages in verbose mode
-var loggerWrapper = function(fn, force) {
-	return function() {
-		if (CONST.VERBOSE || force) {
-			fn.apply(fn, arguments);
+var Logger = function(verbose) {
+
+	// Wrapper info messages in verbose mode
+	var wrapper = function(fn, force) {
+		return function() {
+			if (verbose || force) {
+				fn.apply(fn, arguments);
+			}
 		}
-	}
+	};
+
+	// Public Interface
+	return {
+
+		// Only verbose
+		info: wrapper(console.info),
+		debug: wrapper(console.info),
+		trace: wrapper(console.info),
+
+		// Error logs
+		warn: wrapper(console.warn, true),
+		error: wrapper(console.error, true),
+
+		// Results
+		result: wrapper(console.info, true)
+	};
 };
 
-// Prepare logger
-var logger = {
-
-	// Only verbose
-	info: loggerWrapper(console.info),
-	debug: loggerWrapper(console.info),
-	trace: loggerWrapper(console.info),
-
-	// Error logs
-	warn: loggerWrapper(console.warn, true),
-	error: loggerWrapper(console.error, true),
-
-	// Results
-	result: loggerWrapper(console.info, true)
-};
+var logger = new Logger(CONST.VERBOSE);
 
 // Initializing database
 var db = new JSONBase(CONST.PATH, {
@@ -92,7 +108,35 @@ if (program.args[0] === 'create') {
 }
 
 else if (program.args[0] === 'list') {
-	logger.result(db.models);
+
+	var model = program.args[1];
+
+	if (model && model != 'models') {
+
+		logger.info('Initializing "%s" model', model);
+		var Model = db.model(model);
+
+		logger.info('Listing all "%s" instances', model);
+
+		var results = null;
+
+		try {
+			var query = Model.Query();
+			results = query.Where(function(item) {
+				return true;
+			});
+		}
+		catch (e) {
+			logger.error('Error querying "%s" model', model, condition);
+			logger.error(e);
+		}
+
+		logger.result(results && results.items ? results.items : []);
+
+	}
+	else {
+		logger.result(db.models);
+	}
 }
 
 else if (program.args[0] === 'insert') {
@@ -111,7 +155,7 @@ else if (program.args[0] === 'insert') {
 
 else if (program.args[0] === 'query') {
 	var model = program.args[1];
-	var condition = program.args[2];
+	var condition = program.args[2] || "true";
 
 	logger.info('Initializing "%s" model', model);
 	var Model = db.model(model);
@@ -131,5 +175,5 @@ else if (program.args[0] === 'query') {
 		logger.error(e);
 	}
 
-	logger.result(results.items);
+	logger.result(results && results.items ? results.items : []);
 }
