@@ -71,7 +71,7 @@ if (program.args[0] === 'query') {
 	var results = null;
 
 	try {
-		var query = Model.query();
+		var query = Model.Query();
 		results = query.Where(function(item) {
 			return (new Function('return ' + condition)).apply(item)
 		});
